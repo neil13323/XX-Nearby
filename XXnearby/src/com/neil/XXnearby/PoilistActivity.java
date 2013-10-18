@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 public class PoilistActivity extends Activity {
-    private final static String KEY = "3ad0f994e60f95a2383eb8f0d7498110";
+
     private static BMapManager bMapManager;
     private ListView listView;
     private List<Map<String,Object>> data = new ArrayList<Map<String, Object>>();
@@ -51,10 +51,11 @@ public class PoilistActivity extends Activity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-
-
-        bMapManager = MapUtils.getbMapManager(this);
-        bMapManager.init(KEY,null);
+        DemoApplication demoApplication = (DemoApplication) getApplication();
+        if (demoApplication.mBMapManager==null){
+            demoApplication.mBMapManager = new BMapManager(this);
+            demoApplication.mBMapManager.init(DemoApplication.strKey,new DemoApplication.MyGeneralListener());
+        }
 
         setContentView(R.layout.poidetail);
         listView = (ListView) findViewById(R.id.firstitem);
@@ -414,5 +415,31 @@ public class PoilistActivity extends Activity {
             popview.setVisibility(View.GONE);
             return super.onTap(geoPoint, mapView);    //To change body of overridden methods use File | Settings | File Templates.
         }
+    }
+    @Override
+    protected void onPause() {
+        /**          amMapV
+         *  MapView的生命周期与Activity同步，当activity挂起时需调用MapView.onPause()
+         */
+        mapView.onPause();
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        /**
+         *  MapView的生命周期与Activity同步，当activity恢复时需调用MapView.onResume()
+         */
+        mapView.onResume();
+        super.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        /**
+         *  MapView的生命周期与Activity同步，当activity销毁时需调用MapView.destroy()
+         */
+        mapView.destroy();
+        super.onDestroy();
     }
 }

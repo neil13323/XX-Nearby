@@ -10,6 +10,7 @@ import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import com.baidu.mapapi.BMapManager;
 import com.baidu.mapapi.map.ItemizedOverlay;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.OverlayItem;
@@ -36,7 +37,12 @@ public class PoiDetailsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);    //To change body of overridden methods use File | Settings | File Templates.
-        MapUtils.getbMapManager(this).init(KEY, null);
+        DemoApplication demoApplication = (DemoApplication) getApplication();
+        if (demoApplication.mBMapManager==null){
+            demoApplication.mBMapManager = new BMapManager(this);
+            demoApplication.mBMapManager.init(DemoApplication.strKey,new DemoApplication.MyGeneralListener());
+        }
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.poimapdetails);
         layoutInflater = LayoutInflater.from(this);
@@ -58,7 +64,32 @@ public class PoiDetailsActivity extends Activity {
         initmap();
         inittitle();
     }
+    @Override
+    protected void onPause() {
+        /**          amMapV
+         *  MapView的生命周期与Activity同步，当activity挂起时需调用MapView.onPause()
+         */
+        mapView.onPause();
+        super.onPause();
+    }
 
+    @Override
+    protected void onResume() {
+        /**
+         *  MapView的生命周期与Activity同步，当activity恢复时需调用MapView.onResume()
+         */
+        mapView.onResume();
+        super.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        /**
+         *  MapView的生命周期与Activity同步，当activity销毁时需调用MapView.destroy()
+         */
+        mapView.destroy();
+        super.onDestroy();
+    }
     private void inittitle() {
         backbutton.setOnClickListener(new View.OnClickListener() {
             @Override

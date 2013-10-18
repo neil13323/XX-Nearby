@@ -12,10 +12,11 @@ import com.baidu.mapapi.BMapManager;
  */
 public class MapUtils {
     private  static BMapManager bMapManager;
-
+    private final static String KEY = "3ad0f994e60f95a2383eb8f0d7498110";
     public static synchronized BMapManager getbMapManager(Context context) {
         if(bMapManager==null){
             bMapManager = new BMapManager(context);
+            bMapManager.init(KEY,null);
         }
         return bMapManager;
     }
