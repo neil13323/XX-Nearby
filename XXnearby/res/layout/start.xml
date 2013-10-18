@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+
+        >
+    <RelativeLayout android:orientation="horizontal"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+            android:background="@drawable/bg_title_bar">
+        <ImageButton android:layout_marginLeft="5dp"
+                android:background="@drawable/titlesearchbutton"
+                     android:src="@drawable/abs__ic_search"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+
+                     android:layout_alignParentLeft="true"/>
+        <TextView android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                android:text="XX搜周边"
+                android:textSize="20dp"
+                android:textColor="@android:color/white"
+                android:layout_centerInParent="true"/>
+        <ImageButton android:id="@+id/optionsbutton" android:background="@drawable/titlesearchbutton"
+                     android:src="@drawable/ic_action_setting"
+                     android:layout_alignParentRight="true"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_marginRight="5dp"/>
+
+    </RelativeLayout>
+    <ListView android:background="#ffffff" android:layout_width="match_parent" android:layout_height="match_parent" android:id="@+id/firstitem" android:layout_weight="1"/>
+    <LinearLayout android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="@drawable/bg_title_bar">
+        <TextView android:layout_marginLeft="5dp" android:gravity="center_vertical" android:text="陕西西安XX地方" android:textColor="@android:color/black" android:id="@+id/locationmessage" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_weight="1"/>
+        <ImageButton android:layout_marginRight="5dp" android:id="@+id/locationbutton" android:layout_height="wrap_content" android:layout_width="wrap_content" android:background="@drawable/titlesearchbutton" android:src="@drawable/ic_localbar_location"/>
+    </LinearLayout>
+</LinearLayout>
+

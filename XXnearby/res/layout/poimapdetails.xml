@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:gravity="center_vertical"
+              android:background="@android:color/white"
+        >
+    <RelativeLayout android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_title_bar">
+        <ImageButton android:layout_marginLeft="5dp"
+                     android:background="@drawable/titlesearchbutton"
+                     android:src="@drawable/ic_nav_back"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+
+                     android:layout_alignParentLeft="true"/>
+        <TextView android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="详细信息"
+                  android:textSize="20dp"
+                  android:textColor="@android:color/white"
+                  android:layout_centerInParent="true"/>
+        <ImageButton android:id="@+id/optionsbutton" android:background="@drawable/titlesearchbutton"
+                     android:src="@drawable/ic_action_route"
+                     android:layout_alignParentRight="true"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_marginRight="5dp"/>
+
+    </RelativeLayout>
+
+
+
+
+    <LinearLayout  android:layout_width="match_parent"
+                   android:layout_height="wrap_content">
+        <RadioGroup  android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:orientation="horizontal">
+
+            <RadioButton android:id="@+id/footbutton"
+                    android:layout_width="wrap_content"
+                         android:layout_height="wrap_content"
+                         android:layout_weight="1"
+                         android:background="@drawable/radiobutton"
+                         android:button="@drawable/ic_byfoot"
+
+                         android:text="步行"
+                         android:textColor="#000000"
+                         android:gravity="center"
+
+                    />
+            <RadioButton android:id="@+id/busbutton"
+                         android:layout_width="wrap_content"
+                         android:layout_height="wrap_content"
+                         android:layout_weight="1"
+                         android:background="@drawable/radiobutton"
+                         android:button="@null"
+
+                         android:text="公交"
+                         android:textColor="#000000"
+                         android:gravity="center"
+                    />
+            <RadioButton android:id="@+id/carbutton"
+                         android:layout_width="wrap_content"
+                         android:layout_height="fill_parent"
+                         android:layout_weight="1"
+                         android:background="@drawable/radiobutton"
+                         android:button="@drawable/ic_bycar"
+
+                         android:text="驾车"
+                         android:textColor="#000000"
+                         android:checked="false"/>
+
+
+        </RadioGroup>
+    </LinearLayout>
+    <RelativeLayout  android:layout_width="fill_parent" android:layout_height="fill_parent"
+
+                     android:layout_weight="1">
+    <com.baidu.mapapi.map.MapView android:id="@+id/bmapView"
+                                  android:layout_width="fill_parent" android:layout_height="fill_parent"
+                                  android:clickable="true"
+
+            />
+        <TextView android:id="@+id/distancemessage" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#50000000"/>
+
+        <TextView  android:layout_alignParentBottom="true" android:id="@+id/locationmessage" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="#50000000"/>
+    </RelativeLayout>
+    <LinearLayout android:padding="4dp" android:layout_height="wrap_content" android:layout_width="match_parent" android:background="#ffffff" android:gravity="center_vertical">
+        <ImageButton android:id="@+id/phonebutton" android:background="@drawable/ic_phone" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
+        <TextView android:id="@+id/phonenumber" android:text="110" android:textColor="#000000" android:layout_height="wrap_content" android:layout_width="match_parent" />
+    </LinearLayout>
+</LinearLayout>
+

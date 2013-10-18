@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:background="@android:color/white"
+        >
+    <RelativeLayout android:orientation="horizontal"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+            android:background="@drawable/bg_title_bar">
+        <ImageButton android:id="@+id/titlebackbutton"
+                android:layout_marginLeft="5dp"
+                android:background="@drawable/titlesearchbutton"
+                     android:src="@drawable/ic_nav_back"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+
+                     android:layout_alignParentLeft="true"/>
+        <TextView android:id="@+id/titletextview"
+                android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                android:text="四川菜"
+                android:textSize="20dp"
+                android:textColor="@android:color/white"
+                android:layout_centerInParent="true"/>
+        <ImageButton android:id="@+id/mapbutton"
+                     android:layout_marginLeft="5dp"
+                     android:background="@drawable/titlesearchbutton"
+                     android:src="@drawable/ic_action_map"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+
+                     android:layout_alignParentRight="true"/>
+
+        <ImageButton android:id="@+id/updatebutton"
+                     android:layout_marginRight="5dp"
+                     android:background="@drawable/titlesearchbutton"
+                     android:src="@drawable/u125_normal"
+
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerVertical="true"
+
+                     android:layout_toLeftOf="@id/mapbutton"/>
+
+    </RelativeLayout>
+    <LinearLayout
+            android:id="@+id/distanceselected"
+            android:padding="4dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#d3d3d3"
+            android:gravity="center">
+        <TextView android:id="@+id/distancemessage" android:layout_height="match_parent"
+                  android:layout_width="wrap_content" android:textColor="#000000" android:textSize="13dp" android:text="范围:3000m内"></TextView>
+        <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@drawable/ic_arrow_down"/>
+
+    </LinearLayout>
+
+    <ListView android:layout_width="match_parent" android:layout_height="match_parent" android:id="@+id/firstitem" android:layout_weight="1"/>
+    <RelativeLayout android:id="@+id/mapparent" android:visibility="gone"  android:layout_width="fill_parent" android:layout_height="fill_parent">
+    <com.baidu.mapapi.map.MapView android:id="@+id/bmapView"
+                                  android:layout_width="fill_parent" android:layout_height="fill_parent"
+                                  android:clickable="true"
+
+            />
+        <ImageButton android:id="@+id/probutton" android:layout_alignParentLeft="true" android:layout_alignParentBottom="true" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="5dp" android:background="@drawable/prebutton"/>
+        <ImageButton android:id="@+id/prebutton" android:layout_alignParentBottom="true" android:layout_toRightOf="@id/probutton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="5dp" android:background="@drawable/nextbutton"/>
+        <ImageButton android:id="@+id/locatedbutton" android:layout_alignParentRight="true" android:layout_alignParentBottom="true"  android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="5dp" android:background="@drawable/locationbutton"/>
+
+    </RelativeLayout>
+</LinearLayout>
+
