@@ -13,6 +13,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.*;
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
+import com.baidu.platform.comapi.basestruct.GeoPoint;
 
 import java.lang.reflect.GenericArrayType;
 import java.util.ArrayList;
@@ -27,6 +32,9 @@ public class StartActivity extends Activity {
     private ImageButton locatedbutton;
     private ImageButton optionsbutton;
     private TextView locatedmessage;
+    private LocationClient locationClient;
+    private GeoPoint mylocation;
+    private String addresstext;
     /**
      * Called when the activity is first created.
      */
@@ -40,7 +48,7 @@ public class StartActivity extends Activity {
         listView.setDividerHeight(1);
         locatedbutton = (ImageButton) findViewById(R.id.locationbutton);
         locatedmessage= (TextView) findViewById(R.id.locationmessage);
-
+        locationClient = new LocationClient(this);
         init();
     }
 
@@ -48,29 +56,53 @@ public class StartActivity extends Activity {
         initlistView();
         initimagebutton();
         initOptions();
+        initmylocationmessage();
+    }
+
+    private void initmylocationmessage() {
+        LocationClientOption option = new LocationClientOption();
+        option.setOpenGps(true);//打开gps
+        option.setCoorType("bd09ll");     //设置坐标类型
+        option.setScanSpan(1000);
+        locationClient.registerLocationListener(new BDLocationListener() {
+            @Override
+            public void onReceiveLocation(BDLocation bdLocation) {
+                mylocation = new GeoPoint((int)bdLocation.getLatitude(),(int)bdLocation.getAltitude());
+                addresstext =bdLocation.getAddrStr();
+
+
+                Toast.makeText(StartActivity.this,"定位完成!",Toast.LENGTH_LONG).show();
+                locationClient.stop();
+            }
+
+            @Override
+            public void onReceivePoi(BDLocation bdLocation) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+        });
+        locationClient.setLocOption(option);
+        locationClient.start();
     }
 
     private void initimagebutton() {
         locatedbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               final String text= (String) locatedmessage.getText();
-                locatedmessage.setText("定位中,请稍等...");
+
+                final String text= (String) locatedmessage.getText();
+               locatedmessage.setText("定位中,请稍等...");
                AsyncTask asyncTask= new AsyncTask<Object, Object, Object>() {
                     @Override
                     protected Object doInBackground(Object... objects) {
-                        try {
-                            Thread.sleep(2000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                        }
+                        locationClient.start();
 
                         return null;  //To change body of implemented methods use File | Settings | File Templates.
                     }
 
                    @Override
                    protected void onPostExecute(Object o) {
-                       locatedmessage.setText(text);
+                       locationClient.stop();
+                       locatedmessage.setText(addresstext);
                        super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
                    }
                };

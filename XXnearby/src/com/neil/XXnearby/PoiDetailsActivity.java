@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import com.baidu.mapapi.map.ItemizedOverlay;
@@ -27,6 +28,7 @@ public class PoiDetailsActivity extends Activity {
     private final static String KEY = "3ad0f994e60f95a2383eb8f0d7498110";
     private MapView mapView;
     private View popview;
+    private ImageButton backbutton;
     private LayoutInflater layoutInflater;
     private GeoPoint mylocation,startlocation,endlocation;
     private MyItemizedOverlay<OverlayItem> itemizedOverlay;
@@ -45,6 +47,7 @@ public class PoiDetailsActivity extends Activity {
         radioButton1 = (RadioButton) findViewById(R.id.footbutton);
         radioButton2 = (RadioButton) findViewById(R.id.busbutton);
         radioButton3 = (RadioButton) findViewById(R.id.carbutton);
+        backbutton = (ImageButton) findViewById(R.id.titlebackbutton);
         init();
 
 
@@ -53,6 +56,16 @@ public class PoiDetailsActivity extends Activity {
 
     private void init() {
         initmap();
+        inittitle();
+    }
+
+    private void inittitle() {
+        backbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
     }
 
     private void initmap() {
@@ -78,10 +91,8 @@ public class PoiDetailsActivity extends Activity {
         mkRoute.customizeRoute(startlocation,endlocation,geoPoint);
 
         routeOverlay.setData(mkRoute);
-
-        mapView.getOverlays().add(routeOverlay);
         mapView.getOverlays().add(mylocationOverlay);
-        mapView.getOverlays().add(itemizedOverlay);
+        mapView.getOverlays().add(routeOverlay);
 
 
         popview = layoutInflater.inflate(R.layout.popitem, null);

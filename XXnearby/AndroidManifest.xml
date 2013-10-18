@@ -30,6 +30,12 @@
         <activity android:name=".PoiDetailsActivity"
                   android:label="@string/app_name">
         </activity>
+        <service
+                android:name="com.baidu.location.f"
+                android:enabled="true"
+                android:process=":remote" >
+        </service>
+
     </application>
 
 
