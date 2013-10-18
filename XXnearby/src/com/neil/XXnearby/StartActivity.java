@@ -63,6 +63,7 @@ public class StartActivity extends Activity {
         LocationClientOption option = new LocationClientOption();
         option.setOpenGps(true);//打开gps
         option.setCoorType("bd09ll");     //设置坐标类型
+        option.setAddrType("all");
         option.setScanSpan(1000);
         locationClient.registerLocationListener(new BDLocationListener() {
             @Override
@@ -71,7 +72,7 @@ public class StartActivity extends Activity {
                 addresstext =bdLocation.getAddrStr();
 
 
-                Toast.makeText(StartActivity.this,"定位完成!",Toast.LENGTH_LONG).show();
+                Toast.makeText(StartActivity.this,"定位完成!"+bdLocation.getAddrStr(),Toast.LENGTH_LONG).show();
                 locationClient.stop();
             }
 
@@ -82,6 +83,7 @@ public class StartActivity extends Activity {
         });
         locationClient.setLocOption(option);
         locationClient.start();
+        locationClient.requestLocation();
     }
 
     private void initimagebutton() {
