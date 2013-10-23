@@ -42,7 +42,7 @@ public class PoilistActivity extends Activity {
     private MapView mapView;
     private View popview;
     private LayoutInflater layoutInflater;
-
+    private TextView textView1;
     private MyItemizedOverlay<OverlayItem> itemizedOverlay;
     private String title;
     private int currentCount = 1;
@@ -158,9 +158,9 @@ public class PoilistActivity extends Activity {
             @Override
             public void onClick(View view) {
                 if(mapcurrentcount==1){
-                        Toast.makeText(PoilistActivity.this,"已是第一页",Toast.LENGTH_LONG).show();
+                    Toast.makeText(PoilistActivity.this,"已是第一页",Toast.LENGTH_LONG).show();
 
-                   return;
+                    return;
                 }
                 itemizedOverlay.removeAll();
                 AsyncTask asyncTask = new AsyncTask() {
@@ -200,7 +200,7 @@ public class PoilistActivity extends Activity {
                     protected void onPostExecute(Object o) {
                         progressDialog.dismiss();
 
-                            mapView.refresh();
+                        mapView.refresh();
 
                         super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
                     }
@@ -227,11 +227,10 @@ public class PoilistActivity extends Activity {
                     @Override
                     protected Object doInBackground(Object... objects) {
                         mapcurrentcount++;
-                        if(mapcurrentcount==0){
-                            mapcurrentcount=1;
-
+                        JsonUtils.getData(title,mapcurrentcount,range,MyMessage.mylocation);
+                        if(MyMessage.isempty){
+                            mapcurrentcount--;
                         }else{
-                            JsonUtils.getData(title,mapcurrentcount,range,MyMessage.mylocation);
                             for(int x=0;x<MyMessage.poiDetails.size();x++){
                                 PoiDetail poiDetail = MyMessage.poiDetails.get(x);
                                 OverlayItem overlayItem1 = new OverlayItem(poiDetail.getLocation(),poiDetail.getName(),poiDetail.getDetail());
@@ -247,7 +246,9 @@ public class PoilistActivity extends Activity {
                     @Override
                     protected void onPostExecute(Object o) {
                         progressDialog.dismiss();
-
+                        if(MyMessage.isempty){
+                            Toast.makeText(PoilistActivity.this,"暂无更多数据",Toast.LENGTH_LONG).show();
+                        }
                         mapView.refresh();
                         super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
                     }
@@ -271,7 +272,9 @@ public class PoilistActivity extends Activity {
 
 
                 builder.setView(view1);
-
+                if(textView1!=null){
+                    textView1.setText("加载更多");
+                }
                 final AlertDialog loginDialog = builder.create();
                 loginDialog.show();
                 TextView button1 = (TextView) view1.findViewById(R.id.button1);
@@ -312,6 +315,10 @@ public class PoilistActivity extends Activity {
                             @Override
                             protected void onPostExecute(Object o) {
                                 progressDialog.dismiss();
+                                Log.e("aaaaa",MyMessage.isempty+"");
+                                if(MyMessage.isempty){
+                                    Toast.makeText(PoilistActivity.this,"暂无数据",Toast.LENGTH_LONG).show();
+                                }else{
                                 simpleAdapter = new SimpleAdapter(PoilistActivity.this,data,R.layout.poilistitem,new String[]{"name","detail","distance"},new int[]{R.id.name,R.id.detail,R.id.distance});
 
 
@@ -330,6 +337,7 @@ public class PoilistActivity extends Activity {
 
                                     }
                                 });
+                                }
                                 super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
                             }
                         };
@@ -365,7 +373,11 @@ public class PoilistActivity extends Activity {
 
                             @Override
                             protected void onPostExecute(Object o) {
+
                                 progressDialog.dismiss();
+                                if(MyMessage.isempty){
+                                    Toast.makeText(PoilistActivity.this,"暂无数据",Toast.LENGTH_LONG).show();
+                                }else{
                                 simpleAdapter = new SimpleAdapter(PoilistActivity.this,data,R.layout.poilistitem,new String[]{"name","detail","distance"},new int[]{R.id.name,R.id.detail,R.id.distance});
 
 
@@ -384,6 +396,7 @@ public class PoilistActivity extends Activity {
 
                                     }
                                 });
+                                }
                                 super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
                             }
                         };
@@ -420,6 +433,9 @@ public class PoilistActivity extends Activity {
                             @Override
                             protected void onPostExecute(Object o) {
                                 progressDialog.dismiss();
+                                if(MyMessage.isempty){
+                                    Toast.makeText(PoilistActivity.this,"暂无数据",Toast.LENGTH_LONG).show();
+                                }else{
                                 simpleAdapter = new SimpleAdapter(PoilistActivity.this,data,R.layout.poilistitem,new String[]{"name","detail","distance"},new int[]{R.id.name,R.id.detail,R.id.distance});
 
 
@@ -438,6 +454,7 @@ public class PoilistActivity extends Activity {
 
                                     }
                                 });
+                                }
                                 super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
                             }
                         };
@@ -473,6 +490,9 @@ public class PoilistActivity extends Activity {
                             @Override
                             protected void onPostExecute(Object o) {
                                 progressDialog.dismiss();
+                                if(MyMessage.isempty){
+                                    Toast.makeText(PoilistActivity.this,"暂无数据",Toast.LENGTH_LONG).show();
+                                }else{
                                 simpleAdapter = new SimpleAdapter(PoilistActivity.this,data,R.layout.poilistitem,new String[]{"name","detail","distance"},new int[]{R.id.name,R.id.detail,R.id.distance});
 
 
@@ -491,6 +511,7 @@ public class PoilistActivity extends Activity {
 
                                     }
                                 });
+                                }
                                 super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
                             }
                         };
@@ -526,6 +547,9 @@ public class PoilistActivity extends Activity {
                             @Override
                             protected void onPostExecute(Object o) {
                                 progressDialog.dismiss();
+                                if(MyMessage.isempty){
+                                    Toast.makeText(PoilistActivity.this,"暂无数据",Toast.LENGTH_LONG).show();
+                                }else{
                                 simpleAdapter = new SimpleAdapter(PoilistActivity.this,data,R.layout.poilistitem,new String[]{"name","detail","distance"},new int[]{R.id.name,R.id.detail,R.id.distance});
 
 
@@ -544,6 +568,7 @@ public class PoilistActivity extends Activity {
 
                                     }
                                 });
+                                }
                                 super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
                             }
                         };
@@ -643,8 +668,11 @@ public class PoilistActivity extends Activity {
             @Override
             protected void onPostExecute(Object o) {
                 progressDialog.dismiss();
+                if(MyMessage.isempty){
+                    Toast.makeText(PoilistActivity.this,"暂无数据",Toast.LENGTH_LONG).show();
+                }else{
                 simpleAdapter = new SimpleAdapter(PoilistActivity.this,data,R.layout.poilistitem,new String[]{"name","detail","distance"},new int[]{R.id.name,R.id.detail,R.id.distance});
-                TextView textView1 = new TextView(PoilistActivity.this);
+                textView1 = new TextView(PoilistActivity.this);
                 textView1.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 textView1.setGravity(View.TEXT_ALIGNMENT_GRAVITY);
                 textView1.setPadding(0, 3, 0, 3);
@@ -668,21 +696,30 @@ public class PoilistActivity extends Activity {
 
 
                                 tempdata = JsonUtils.getData(title,currentCount,range,MyMessage.mylocation);
-                                Log.d("wwwww",tempdata.size()+">>>>>");
-                                for(int x=0;x<10;x++){
+                                if(tempdata!=null){
+                                    int totle = tempdata.size();
+                                    Log.d("wwwww",tempdata.size()+">>>>>");
 
-                                    data.add(tempdata.get(x));
+                                    for(int x=0;x<totle;x++){
+
+                                        data.add(tempdata.get(x));
+                                    }
+
                                 }
-
-
                                 return null;  //To change body of implemented methods use File | Settings | File Templates.
                             }
 
                             @Override
                             protected void onPostExecute(Object o) {
                                 super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
-                                simpleAdapter.notifyDataSetChanged();
-                                textView.setText("加载更多");
+                                if(tempdata==null){
+                                    //Toast.makeText(PoilistActivity.this,"暂无更多数据可以加载",Toast.LENGTH_LONG).show();
+                                    textView.setText("暂无更多数据可以加载");
+                                }else{
+                                    simpleAdapter.notifyDataSetChanged();
+                                    textView.setText("加载更多");
+                                }
+
                             }
 
 
@@ -697,12 +734,19 @@ public class PoilistActivity extends Activity {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                         HashMap<String,Object> hashMap = (HashMap<String, Object>) data.get(i);
-                        if(i>=10){
-                           i= i-10;
-                        }else if(i>=20){
-                            i=i-20;
-                        }
-                        MyMessage.endpoi = MyMessage.poiDetails.get(i);
+                        String name = (String) hashMap.get("name");
+                        String distance = (String)hashMap.get("distance");
+                        String detail = (String) hashMap.get("detail");
+                        String tel = (String) hashMap.get("tel");
+                        GeoPoint geoPoint = (GeoPoint) hashMap.get("location");
+
+
+                        MyMessage.endpoi = new PoiDetail();
+                        MyMessage.endpoi.setName(name);
+                        MyMessage.endpoi.setPhone(tel);
+                        MyMessage.endpoi.setDetail(detail);
+                        MyMessage.endpoi.setDistance(distance);
+                        MyMessage.endpoi.setLocation(geoPoint);
                         Intent intent = new Intent();
                         intent.setClass(PoilistActivity.this,PoiDetailsActivity.class);
                         intent.putExtra("name",hashMap.get("name").toString());
@@ -711,6 +755,7 @@ public class PoilistActivity extends Activity {
 
                     }
                 });
+                }
                 super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
             }
         };

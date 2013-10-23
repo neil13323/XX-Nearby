@@ -1,20 +1,23 @@
 package com.neil.XXnearby;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.ImageButton;
-import android.widget.RadioButton;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import com.baidu.mapapi.BMapManager;
 import com.baidu.mapapi.map.*;
 import com.baidu.mapapi.search.*;
 import com.baidu.platform.comapi.basestruct.GeoPoint;
+
+import java.util.Date;
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,8 +30,8 @@ public class PoiDetailsActivity extends Activity {
 
     private MapView mapView;
     private View popview;
-    private TextView distancetext,nametext,detailtext;
-    private ImageButton backbutton;
+    private TextView distancetext,nametext,detailtext,phonetext;
+    private ImageButton backbutton,phonebutton;
     private LayoutInflater layoutInflater;
     private GeoPoint mylocation,startlocation,endlocation;
     private MyItemizedOverlay<OverlayItem> itemizedOverlay;
@@ -37,6 +40,7 @@ public class PoiDetailsActivity extends Activity {
     private RouteOverlay routeOverlay;
     private TransitOverlay transitOverlay;
     private MKRoute route;
+
     private BMapManager app;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +54,7 @@ public class PoiDetailsActivity extends Activity {
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.poimapdetails);
-        mkSearch.init(demoApplication.mBMapManager,null);
+        mkSearch.init(demoApplication.mBMapManager, null);
         layoutInflater = LayoutInflater.from(this);
         mapView = (MapView) findViewById(R.id.bmapView);
         mylocation = MyMessage.mylocation;
@@ -63,7 +67,8 @@ public class PoiDetailsActivity extends Activity {
         distancetext = (TextView) findViewById(R.id.distancemessage);
         nametext = (TextView) findViewById(R.id.locationname);
         detailtext = (TextView) findViewById(R.id.locationaddress);
-
+        phonebutton = (ImageButton) findViewById(R.id.phonebutton);
+        phonetext = (TextView) findViewById(R.id.phonenumber);
         init();
         radioButton1.setChecked(true);
         radioButton1.setOnClickListener(new View.OnClickListener() {
@@ -284,32 +289,74 @@ public class PoiDetailsActivity extends Activity {
         OverlayItem overlayItem2 = new OverlayItem(new GeoPoint((int) (34.25934463685013 * 1E6+4000), (int) (108.94721031188965 * 1E6+4000)),getIntent().getStringExtra("name"),getIntent().getStringExtra("detail"));
         overlayItem2.setMarker(getResources().getDrawable(R.drawable.ic_loc_to));
         itemizedOverlay.addItem(overlayItem2);
+        if(MyMessage.endpoi.getPhone().equals("")){
+            phonetext.setText("暂无电话");
+        }else{
+            phonetext.setText(MyMessage.endpoi.getPhone());
 
+            phonebutton.setOnClickListener(new View.OnClickListener() {
+                private String phone_number;
+                private AlertDialog loginDialog;
+                @Override
+                public void onClick(View view) {
+                    phone_number = MyMessage.endpoi.getPhone().trim();
+
+                    String[] phonenumber = phone_number.split(";");
+                    if(phonenumber.length>=2){
+                        AlertDialog.Builder builder = new AlertDialog.Builder(PoiDetailsActivity.this);
+                        LayoutInflater inflater = LayoutInflater.from(PoiDetailsActivity.this);
+                        LinearLayout view1 = (LinearLayout) inflater.inflate(R.layout.phonenumber, null);
+                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.FILL_PARENT,
+                                LinearLayout.LayoutParams.FILL_PARENT);
+                        view1.setLayoutParams(params);
+                        for(int x=0;x<phonenumber.length;x++){
+                            TextView textView = new TextView(PoiDetailsActivity.this);
+                            textView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                            textView.setText(phonenumber[x]);
+                            textView.setTextSize(24);
+                            textView.setPadding(2,5,2,5);
+                            textView.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    TextView textView1 = (TextView) view;
+                                    phone_number = textView1.getText().toString();
+                                    loginDialog.dismiss();
+                                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phone_number));
+                                    PoiDetailsActivity.this.startActivity(intent);//内部类
+                                }
+                            });
+                            ImageView imageView = new ImageView(PoiDetailsActivity.this);
+                            imageView.setImageResource(R.drawable.u244_line);
+                            imageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+                            view1.addView(textView);
+                            if(x==phonenumber.length-1){
+                                continue;
+                            }else{
+                                view1.addView(imageView);
+                            }
+                        }
+
+                        builder.setView(view1);
+
+                        loginDialog = builder.create();
+                        loginDialog.show();
+                    }else{
+
+
+                        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phone_number));
+                        PoiDetailsActivity.this.startActivity(intent);//内部类
+                    }
+                }
+            });
+        }
         MKPlanNode stNode = new MKPlanNode();
         stNode.pt = MyMessage.mylocation;
         MKPlanNode enNode = new MKPlanNode();
         enNode.pt = MyMessage.endpoi.getLocation();
         mkSearch.walkingSearch(MyMessage.mycity, stNode, MyMessage.mycity, enNode);
 
-
-//
-//        MKRoute mkRoute = new MKRoute();
-//
-//        GeoPoint[] geoPoint = new GeoPoint[2];
-//        geoPoint[0] =startlocation;
-//        geoPoint[1] = endlocation;
-//
-//        mkRoute.customizeRoute(startlocation,endlocation,geoPoint);
-//
-//        routeOverlay.setData(mkRoute);
-//        mapView.getOverlays().add(mylocationOverlay);
-//        mapView.getOverlays().add(routeOverlay);
-//
-//
-//        popview = layoutInflater.inflate(R.layout.popitem, null);
-//        popview.setVisibility(View.GONE);
-//        mapView.addView(popview);
-//        mapView.refresh();
 
     }
 

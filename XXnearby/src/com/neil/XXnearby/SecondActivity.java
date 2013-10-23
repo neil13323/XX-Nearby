@@ -210,10 +210,10 @@ public class SecondActivity extends Activity {
             messagedata.add(new Cat("过境口岸",false));
 
         } else if("公共设施".equals(title)){
-            messagedata.add(new Cat("报刊亭",true));
-            messagedata.add(new Cat("公用电话",true));
-            messagedata.add(new Cat("公共厕所",true));
-            messagedata.add(new Cat("紧急避难场所",true));
+            messagedata.add(new Cat("报刊亭",false));
+            messagedata.add(new Cat("公用电话",false));
+            messagedata.add(new Cat("公共厕所",false));
+            messagedata.add(new Cat("紧急避难场所",false));
         }
 
 

@@ -206,7 +206,6 @@ public class StartActivity extends Activity {
         messagedata.add("医疗保健服务");
         messagedata.add("科教文化服务");
         messagedata.add("交通设施服务");
-        messagedata.add("金融保险服务");
         messagedata.add("公共设施");
     }
 
