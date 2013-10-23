@@ -2,6 +2,7 @@ package com.neil.XXnearby;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Color;
@@ -31,6 +32,7 @@ public class PoilistActivity extends Activity {
     private static BMapManager bMapManager;
     private ListView listView;
     private List<Map<String,Object>> data = new ArrayList<Map<String, Object>>();
+    private List<Map<String,Object>> tempdata = new ArrayList<Map<String, Object>>();
     private List<String>messagenamedata = new ArrayList<String>();
     private List<String>messagedetaildata = new ArrayList<String>();
     private List<String>messagedistancedata = new ArrayList<String>();
@@ -40,8 +42,13 @@ public class PoilistActivity extends Activity {
     private MapView mapView;
     private View popview;
     private LayoutInflater layoutInflater;
-    private GeoPoint mylocation;
+
     private MyItemizedOverlay<OverlayItem> itemizedOverlay;
+    private String title;
+    private int currentCount = 1;
+    private int mapcurrentcount=1;
+    private String range="3000";
+
 
     /**
      * Called when the activity is first created.
@@ -69,7 +76,8 @@ public class PoilistActivity extends Activity {
         nextbutton = (ImageButton) findViewById(R.id.prebutton);
         layoutInflater = LayoutInflater.from(this);
         locatedbutton= (ImageButton) findViewById(R.id.locatedbutton);
-        mylocation = new GeoPoint((int) (34.25934463685013 * 1E6), (int) (108.94721031188965 * 1E6));
+        //mylocation = new GeoPoint((int) (34.25934463685013 * 1E6), (int) (108.94721031188965 * 1E6));
+        title = getIntent().getStringExtra("title");
         init();
     }
 
@@ -78,29 +86,42 @@ public class PoilistActivity extends Activity {
         initdistancebar();
         initlistView();
         initmapdata();
+
         initmapView();
-        initmapdata();
+
     }
 
-    private void initmapdata() {
-        mapView.getController().setCenter(mylocation);
-        mapView.getController().setZoom(14);
-        itemizedOverlay = new MyItemizedOverlay<OverlayItem>(getResources().getDrawable(R.drawable.u71_normal),mapView);
-        MyItemizedOverlay<OverlayItem> mylocationOverlay = new MyItemizedOverlay<OverlayItem>(getResources().getDrawable(R.drawable.u71_normal),mapView);
-        OverlayItem overlayItem = new OverlayItem(new GeoPoint((int) (34.25934463685013 * 1E6), (int) (108.94721031188965 * 1E6)),"这是我的位置","这是我位置的描述");
-        mylocationOverlay.addItem(overlayItem);
+    private void initmapdata(){
+        mapView.getController().setCenter(MyMessage.mylocation);
+        mapView.getController().setZoom(18);
 
-//        for(int x=1;x<10;x++){
-//            OverlayItem overlayItem1 = new OverlayItem(new GeoPoint((int) ((34.25934463685013 * 1E6)+10000*x), (int) ((108.94721031188965 * 1E6))+10000*x),"黄记煌三汁闷锅","西安南大街53号南附楼内3层");
-//            overlayItem1.setMarker(getResources().getDrawable(R.drawable.ic_loc_normal));
-//            itemizedOverlay.addItem(overlayItem1);
-//        }
+        itemizedOverlay = new MyItemizedOverlay<OverlayItem>(getResources().getDrawable(R.drawable.u71_normal),mapView);
+        ItemizedOverlay<OverlayItem> mylocationOverlay = new ItemizedOverlay<OverlayItem>(getResources().getDrawable(R.drawable.u71_normal),mapView);
+        OverlayItem overlayItem = new OverlayItem(MyMessage.mylocation,"这是我的位置","这是我位置的描述");
+        mylocationOverlay.addItem(overlayItem);
+        JsonUtils.getData(title,mapcurrentcount,range,MyMessage.mylocation);
+        for(int x=0;x<MyMessage.poiDetails.size();x++){
+            PoiDetail poiDetail = MyMessage.poiDetails.get(x);
+            OverlayItem overlayItem1 = new OverlayItem(poiDetail.getLocation(),poiDetail.getName(),poiDetail.getDetail());
+            overlayItem1.setMarker(getResources().getDrawable(R.drawable.ic_loc_normal));
+            itemizedOverlay.addItem(overlayItem1);
+        }
 
         mapView.getOverlays().add(itemizedOverlay);
         mapView.getOverlays().add(mylocationOverlay);
         popview = layoutInflater.inflate(R.layout.popitem, null);
         popview.setVisibility(View.GONE);
         mapView.addView(popview);
+        popview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.setClass(PoilistActivity.this,PoiDetailsActivity.class);
+                startActivity(intent);
+
+            }
+        });
+        mapView.refresh();
     }
 
     private void initmapView() {
@@ -115,6 +136,7 @@ public class PoilistActivity extends Activity {
                     flag=false;
                     listView.setVisibility(View.GONE);
                     relativemap.setVisibility(View.VISIBLE);
+                    mapView.getController().animateTo(MyMessage.mylocation);
 
                 }
                 else{
@@ -129,33 +151,108 @@ public class PoilistActivity extends Activity {
         locatedbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mapView.getController().animateTo(mylocation);
+                mapView.getController().animateTo(MyMessage.mylocation);
             }
         });
         prebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                itemizedOverlay.removeAll();
+                if(mapcurrentcount==1){
+                        Toast.makeText(PoilistActivity.this,"已是第一页",Toast.LENGTH_LONG).show();
 
-                for(int x=1;x<10;x++){
-                    OverlayItem overlayItem1 = new OverlayItem(new GeoPoint((int) ((34.25934463685013 * 1E6)+10000*x), (int) ((108.94721031188965 * 1E6))+10000*x),"黄记煌三汁闷锅","西安南大街53号南附楼内3层");
-                    overlayItem1.setMarker(getResources().getDrawable(R.drawable.ic_loc_normal));
-                    itemizedOverlay.addItem(overlayItem1);
+                   return;
                 }
-                mapView.refresh();
+                itemizedOverlay.removeAll();
+                AsyncTask asyncTask = new AsyncTask() {
+                    private ProgressDialog progressDialog;
+                    @Override
+                    protected void onPreExecute() {
+                        progressDialog = new ProgressDialog(PoilistActivity.this);
+                        progressDialog.setMessage("加载中,请稍候...");
+                        progressDialog.show();
+                        super.onPreExecute();    //To change body of overridden methods use File | Settings | File Templates.
+                    }
+
+                    @Override
+                    protected Object doInBackground(Object... objects) {
+                        mapcurrentcount--;
+                        Log.e("qqqq",mapcurrentcount+"....");
+                        if(mapcurrentcount==0){
+                            mapcurrentcount=1;
+
+                        }else{
+                            JsonUtils.getData(title,mapcurrentcount,range,MyMessage.mylocation);
+                            Log.e("qqqq",MyMessage.poiDetails.size()+"<<<<<");
+                            for(int x=0;x<MyMessage.poiDetails.size();x++){
+                                PoiDetail poiDetail = MyMessage.poiDetails.get(x);
+                                Log.e("qqqq",poiDetail.getLocation().getLatitudeE6()+">>>>>"+poiDetail.getLocation().getLongitudeE6());
+                                OverlayItem overlayItem1 = new OverlayItem(poiDetail.getLocation(),poiDetail.getName(),poiDetail.getDetail());
+                                overlayItem1.setMarker(getResources().getDrawable(R.drawable.ic_loc_normal));
+                                itemizedOverlay.addItem(overlayItem1);
+                            }
+
+                        }
+
+                        return null;  //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
+                    protected void onPostExecute(Object o) {
+                        progressDialog.dismiss();
+
+                            mapView.refresh();
+
+                        super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
+                    }
+                };
+                asyncTask.execute();
             }
         });
         nextbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 boolean aa = itemizedOverlay.removeAll();
-                Log.d("ssss",aa+"");
-                for(int x=1;x<10;x++){
-                    OverlayItem overlayItem1 = new OverlayItem(new GeoPoint((int) ((34.25934463685013 * 1E6)+10000*x), (int) ((108.94721031188965 * 1E6))-10000*x),"黄记煌三汁闷锅","西安南大街53号南附楼内3层");
-                    overlayItem1.setMarker(getResources().getDrawable(R.drawable.ic_loc_normal));
-                    itemizedOverlay.addItem(overlayItem1);
-                }
+                Log.e("asdasd",aa+"<><>");
                 mapView.refresh();
+                AsyncTask asyncTask = new AsyncTask() {
+                    private ProgressDialog progressDialog;
+                    @Override
+                    protected void onPreExecute() {
+                        progressDialog = new ProgressDialog(PoilistActivity.this);
+                        progressDialog.setMessage("加载中,请稍候...");
+                        progressDialog.show();
+                        super.onPreExecute();    //To change body of overridden methods use File | Settings | File Templates.
+                    }
+
+                    @Override
+                    protected Object doInBackground(Object... objects) {
+                        mapcurrentcount++;
+                        if(mapcurrentcount==0){
+                            mapcurrentcount=1;
+
+                        }else{
+                            JsonUtils.getData(title,mapcurrentcount,range,MyMessage.mylocation);
+                            for(int x=0;x<MyMessage.poiDetails.size();x++){
+                                PoiDetail poiDetail = MyMessage.poiDetails.get(x);
+                                OverlayItem overlayItem1 = new OverlayItem(poiDetail.getLocation(),poiDetail.getName(),poiDetail.getDetail());
+                                overlayItem1.setMarker(getResources().getDrawable(R.drawable.ic_loc_normal));
+                                itemizedOverlay.addItem(overlayItem1);
+                            }
+
+                        }
+
+                        return null;  //To change body of implemented methods use File | Settings | File Templates.
+                    }
+
+                    @Override
+                    protected void onPostExecute(Object o) {
+                        progressDialog.dismiss();
+
+                        mapView.refresh();
+                        super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
+                    }
+                };
+                asyncTask.execute();
             }
         });
     }
@@ -188,10 +285,55 @@ public class PoilistActivity extends Activity {
                 TextView button5 = (TextView) view1.findViewById(R.id.button5);
 
                 button1.setOnClickListener(new View.OnClickListener() {
+                    private ProgressDialog progressDialog;
                     @Override
                     public void onClick(View view) {
                         TextView textView = (TextView) distanceselect.findViewById(R.id.distancemessage);
                         textView.setText("范围:1000m内");
+                        range = "1000";
+                        AsyncTask asyncTask = new AsyncTask() {
+                            @Override
+                            protected void onPreExecute() {
+                                progressDialog = new ProgressDialog(PoilistActivity.this);
+                                progressDialog.setMessage("加载中,请稍候...");
+                                progressDialog.show();
+                                super.onPreExecute();    //To change body of overridden methods use File | Settings | File Templates.
+                            }
+
+                            @Override
+                            protected Object doInBackground(Object... objects) {
+
+
+                                data = JsonUtils.getData(title,1,range,MyMessage.mylocation);
+
+                                return null;  //To change body of implemented methods use File | Settings | File Templates.
+                            }
+
+                            @Override
+                            protected void onPostExecute(Object o) {
+                                progressDialog.dismiss();
+                                simpleAdapter = new SimpleAdapter(PoilistActivity.this,data,R.layout.poilistitem,new String[]{"name","detail","distance"},new int[]{R.id.name,R.id.detail,R.id.distance});
+
+
+                                listView.setAdapter(simpleAdapter);
+                                simpleAdapter.notifyDataSetInvalidated();
+
+                                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                        HashMap<String,Object> hashMap = (HashMap<String, Object>) data.get(i);
+                                        Intent intent = new Intent();
+                                        intent.setClass(PoilistActivity.this,PoiDetailsActivity.class);
+                                        intent.putExtra("name",hashMap.get("name").toString());
+                                        intent.putExtra("detail",hashMap.get("detail").toString());
+                                        startActivity(intent);
+
+                                    }
+                                });
+                                super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
+                            }
+                        };
+                        asyncTask.execute();
                         loginDialog.dismiss();
 
                     }
@@ -201,6 +343,51 @@ public class PoilistActivity extends Activity {
                     public void onClick(View view) {
                         TextView textView = (TextView) distanceselect.findViewById(R.id.distancemessage);
                         textView.setText("范围:2000m内");
+                        range = "2000";
+                        AsyncTask asyncTask = new AsyncTask() {
+                            private ProgressDialog progressDialog;
+                            @Override
+                            protected void onPreExecute() {
+                                progressDialog = new ProgressDialog(PoilistActivity.this);
+                                progressDialog.setMessage("加载中,请稍候...");
+                                progressDialog.show();
+                                super.onPreExecute();    //To change body of overridden methods use File | Settings | File Templates.
+                            }
+
+                            @Override
+                            protected Object doInBackground(Object... objects) {
+
+
+                                data = JsonUtils.getData(title,1,range,MyMessage.mylocation);
+
+                                return null;  //To change body of implemented methods use File | Settings | File Templates.
+                            }
+
+                            @Override
+                            protected void onPostExecute(Object o) {
+                                progressDialog.dismiss();
+                                simpleAdapter = new SimpleAdapter(PoilistActivity.this,data,R.layout.poilistitem,new String[]{"name","detail","distance"},new int[]{R.id.name,R.id.detail,R.id.distance});
+
+
+                                listView.setAdapter(simpleAdapter);
+                                simpleAdapter.notifyDataSetInvalidated();
+
+                                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                        HashMap<String,Object> hashMap = (HashMap<String, Object>) data.get(i);
+                                        Intent intent = new Intent();
+                                        intent.setClass(PoilistActivity.this,PoiDetailsActivity.class);
+                                        intent.putExtra("name",hashMap.get("name").toString());
+                                        intent.putExtra("detail",hashMap.get("detail").toString());
+                                        startActivity(intent);
+
+                                    }
+                                });
+                                super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
+                            }
+                        };
+                        asyncTask.execute();
                         loginDialog.dismiss();
                     }
                 });
@@ -209,6 +396,52 @@ public class PoilistActivity extends Activity {
                     public void onClick(View view) {
                         TextView textView = (TextView) distanceselect.findViewById(R.id.distancemessage);
                         textView.setText("范围:3000m内");
+                        range = "3000";
+
+                        AsyncTask asyncTask = new AsyncTask() {
+                            private ProgressDialog progressDialog;
+                            @Override
+                            protected void onPreExecute() {
+                                progressDialog = new ProgressDialog(PoilistActivity.this);
+                                progressDialog.setMessage("加载中,请稍候...");
+                                progressDialog.show();
+                                super.onPreExecute();    //To change body of overridden methods use File | Settings | File Templates.
+                            }
+
+                            @Override
+                            protected Object doInBackground(Object... objects) {
+
+
+                                data = JsonUtils.getData(title,1,range,MyMessage.mylocation);
+
+                                return null;  //To change body of implemented methods use File | Settings | File Templates.
+                            }
+
+                            @Override
+                            protected void onPostExecute(Object o) {
+                                progressDialog.dismiss();
+                                simpleAdapter = new SimpleAdapter(PoilistActivity.this,data,R.layout.poilistitem,new String[]{"name","detail","distance"},new int[]{R.id.name,R.id.detail,R.id.distance});
+
+
+                                listView.setAdapter(simpleAdapter);
+                                simpleAdapter.notifyDataSetInvalidated();
+
+                                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                        HashMap<String,Object> hashMap = (HashMap<String, Object>) data.get(i);
+                                        Intent intent = new Intent();
+                                        intent.setClass(PoilistActivity.this,PoiDetailsActivity.class);
+                                        intent.putExtra("name",hashMap.get("name").toString());
+                                        intent.putExtra("detail",hashMap.get("detail").toString());
+                                        startActivity(intent);
+
+                                    }
+                                });
+                                super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
+                            }
+                        };
+                        asyncTask.execute();
                         loginDialog.dismiss();
                     }
                 });
@@ -217,6 +450,51 @@ public class PoilistActivity extends Activity {
                     public void onClick(View view) {
                         TextView textView = (TextView) distanceselect.findViewById(R.id.distancemessage);
                         textView.setText("范围:4000m内");
+                        range = "4000";
+                        AsyncTask asyncTask = new AsyncTask() {
+                            private ProgressDialog progressDialog;
+                            @Override
+                            protected void onPreExecute() {
+                                progressDialog = new ProgressDialog(PoilistActivity.this);
+                                progressDialog.setMessage("加载中,请稍候...");
+                                progressDialog.show();
+                                super.onPreExecute();    //To change body of overridden methods use File | Settings | File Templates.
+                            }
+
+                            @Override
+                            protected Object doInBackground(Object... objects) {
+
+
+                                data = JsonUtils.getData(title,1,range,MyMessage.mylocation);
+
+                                return null;  //To change body of implemented methods use File | Settings | File Templates.
+                            }
+
+                            @Override
+                            protected void onPostExecute(Object o) {
+                                progressDialog.dismiss();
+                                simpleAdapter = new SimpleAdapter(PoilistActivity.this,data,R.layout.poilistitem,new String[]{"name","detail","distance"},new int[]{R.id.name,R.id.detail,R.id.distance});
+
+
+                                listView.setAdapter(simpleAdapter);
+                                simpleAdapter.notifyDataSetInvalidated();
+
+                                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                        HashMap<String,Object> hashMap = (HashMap<String, Object>) data.get(i);
+                                        Intent intent = new Intent();
+                                        intent.setClass(PoilistActivity.this,PoiDetailsActivity.class);
+                                        intent.putExtra("name",hashMap.get("name").toString());
+                                        intent.putExtra("detail",hashMap.get("detail").toString());
+                                        startActivity(intent);
+
+                                    }
+                                });
+                                super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
+                            }
+                        };
+                        asyncTask.execute();
                         loginDialog.dismiss();
                     }
                 });
@@ -225,6 +503,51 @@ public class PoilistActivity extends Activity {
                     public void onClick(View view) {
                         TextView textView = (TextView) distanceselect.findViewById(R.id.distancemessage);
                         textView.setText("范围:5000m内");
+                        range = "5000";
+                        AsyncTask asyncTask = new AsyncTask() {
+                            private ProgressDialog progressDialog;
+                            @Override
+                            protected void onPreExecute() {
+                                progressDialog = new ProgressDialog(PoilistActivity.this);
+                                progressDialog.setMessage("加载中,请稍候...");
+                                progressDialog.show();
+                                super.onPreExecute();    //To change body of overridden methods use File | Settings | File Templates.
+                            }
+
+                            @Override
+                            protected Object doInBackground(Object... objects) {
+
+
+                                data = JsonUtils.getData(title,1,range,MyMessage.mylocation);
+
+                                return null;  //To change body of implemented methods use File | Settings | File Templates.
+                            }
+
+                            @Override
+                            protected void onPostExecute(Object o) {
+                                progressDialog.dismiss();
+                                simpleAdapter = new SimpleAdapter(PoilistActivity.this,data,R.layout.poilistitem,new String[]{"name","detail","distance"},new int[]{R.id.name,R.id.detail,R.id.distance});
+
+
+                                listView.setAdapter(simpleAdapter);
+                                simpleAdapter.notifyDataSetInvalidated();
+
+                                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                        HashMap<String,Object> hashMap = (HashMap<String, Object>) data.get(i);
+                                        Intent intent = new Intent();
+                                        intent.setClass(PoilistActivity.this,PoiDetailsActivity.class);
+                                        intent.putExtra("name",hashMap.get("name").toString());
+                                        intent.putExtra("detail",hashMap.get("detail").toString());
+                                        startActivity(intent);
+
+                                    }
+                                });
+                                super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
+                            }
+                        };
+                        asyncTask.execute();
                         loginDialog.dismiss();
                     }
                 });
@@ -236,100 +559,165 @@ public class PoilistActivity extends Activity {
         TextView textView = (TextView) findViewById(R.id.titletextview);
         textView.setText(getIntent().getCharSequenceExtra("title"));
         ImageButton backbutton = (ImageButton) findViewById(R.id.titlebackbutton);
+        ImageButton updatebutton = (ImageButton) findViewById(R.id.updatebutton);
         backbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finish();
             }
         });
-
-    }
-
-
-    private void initlistView(){
-        initmessagedata();
-        for(int x=0;x<messagenamedata.size();x++){
-            HashMap<String,Object> hashMap = new HashMap<String, Object>();
-            hashMap.put("name",messagenamedata.get(x));
-            hashMap.put("detail",messagedetaildata.get(x));
-            hashMap.put("distance",messagedistancedata.get(x));
-            data.add(hashMap);
-        }
-
-        simpleAdapter = new SimpleAdapter(this,data,R.layout.poilistitem,new String[]{"name","detail","distance"},new int[]{R.id.name,R.id.detail,R.id.distance}){
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                View view =super.getView(position, convertView, parent);
-
-
-
-
-                return view;    //To change body of overridden methods use File | Settings | File Templates.
-            }
-        };
-        TextView textView1 = new TextView(this);
-        textView1.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        textView1.setGravity(View.TEXT_ALIGNMENT_GRAVITY);
-        textView1.setPadding(0, 3, 0, 3);
-        textView1.setText("加载更多");
-
-
-        listView.addFooterView(textView1);
-
-        listView.setAdapter(simpleAdapter);
-        textView1.setOnClickListener(new View.OnClickListener() {
-            private TextView textView;
+        updatebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                textView = (TextView) view;
-                textView.setText("加载中...");
-                AsyncTask<Object,Object,Object> asyncTask = new AsyncTask<Object, Object, Object>() {
+                AsyncTask asyncTask = new AsyncTask() {
+                    private ProgressDialog progressDialog;
+                    @Override
+                    protected void onPreExecute() {
+                        progressDialog = new ProgressDialog(PoilistActivity.this);
+                        progressDialog.setMessage("加载中,请稍候...");
+                        progressDialog.show();
+                        super.onPreExecute();    //To change body of overridden methods use File | Settings | File Templates.
+                    }
+
                     @Override
                     protected Object doInBackground(Object... objects) {
 
 
-                        try {
-                            Thread.sleep(2000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                        }
-                        for(int x=0;x<5;x++){
-                            HashMap<String,Object> hashMap = new HashMap<String, Object>();
-                            hashMap.put("name","陕西大面馆");
-                            hashMap.put("detail","西安南大街");
-                            hashMap.put("distance","1200m");
-                            data.add(hashMap);
-                        }
+                        data = JsonUtils.getData(title,1,range,MyMessage.mylocation);
+
                         return null;  //To change body of implemented methods use File | Settings | File Templates.
                     }
 
                     @Override
                     protected void onPostExecute(Object o) {
+                        progressDialog.dismiss();
+                        simpleAdapter = new SimpleAdapter(PoilistActivity.this,data,R.layout.poilistitem,new String[]{"name","detail","distance"},new int[]{R.id.name,R.id.detail,R.id.distance});
+
+
+                        listView.setAdapter(simpleAdapter);
+                        simpleAdapter.notifyDataSetInvalidated();
+
+                        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                HashMap<String,Object> hashMap = (HashMap<String, Object>) data.get(i);
+                                Intent intent = new Intent();
+                                intent.setClass(PoilistActivity.this,PoiDetailsActivity.class);
+                                intent.putExtra("name",hashMap.get("name").toString());
+                                intent.putExtra("detail",hashMap.get("detail").toString());
+                                startActivity(intent);
+
+                            }
+                        });
                         super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
-                        simpleAdapter.notifyDataSetChanged();
-                        textView.setText("加载更多");
                     }
-
-
                 };
-
                 asyncTask.execute();
-
             }
         });
-        //   listView.add
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    }
+
+
+    private void initlistView(){
+
+        final ProgressDialog progressDialog = new ProgressDialog(PoilistActivity.this);
+
+        progressDialog.setMessage("加载中,请稍候...");
+
+        AsyncTask asyncTask = new AsyncTask() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                HashMap<String,Object> hashMap = (HashMap<String, Object>) data.get(i);
-                Intent intent = new Intent();
-                intent.setClass(PoilistActivity.this,PoiDetailsActivity.class);
-                intent.putExtra("name",hashMap.get("name").toString());
-                intent.putExtra("detail",hashMap.get("detail").toString());
-                startActivity(intent);
-
+            protected void onPreExecute() {
+                progressDialog.show();
+                super.onPreExecute();    //To change body of overridden methods use File | Settings | File Templates.
             }
-        });
+
+            @Override
+            protected Object doInBackground(Object... objects) {
+
+
+                data = JsonUtils.getData(title,1,range,new GeoPoint((int) (34.25934463685013 * 1E6), (int) (108.94721031188965 * 1E6)));
+
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            protected void onPostExecute(Object o) {
+                progressDialog.dismiss();
+                simpleAdapter = new SimpleAdapter(PoilistActivity.this,data,R.layout.poilistitem,new String[]{"name","detail","distance"},new int[]{R.id.name,R.id.detail,R.id.distance});
+                TextView textView1 = new TextView(PoilistActivity.this);
+                textView1.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                textView1.setGravity(View.TEXT_ALIGNMENT_GRAVITY);
+                textView1.setPadding(0, 3, 0, 3);
+                textView1.setText("加载更多");
+
+
+                listView.addFooterView(textView1);
+
+                listView.setAdapter(simpleAdapter);
+                simpleAdapter.notifyDataSetInvalidated();
+                textView1.setOnClickListener(new View.OnClickListener() {
+                    private TextView textView;
+                    @Override
+                    public void onClick(View view) {
+                        textView = (TextView) view;
+                        textView.setText("加载中...");
+                        currentCount++;
+                        AsyncTask<Object,Object,Object> asyncTask = new AsyncTask<Object, Object, Object>() {
+                            @Override
+                            protected Object doInBackground(Object... objects) {
+
+
+                                tempdata = JsonUtils.getData(title,currentCount,range,MyMessage.mylocation);
+                                Log.d("wwwww",tempdata.size()+">>>>>");
+                                for(int x=0;x<10;x++){
+
+                                    data.add(tempdata.get(x));
+                                }
+
+
+                                return null;  //To change body of implemented methods use File | Settings | File Templates.
+                            }
+
+                            @Override
+                            protected void onPostExecute(Object o) {
+                                super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
+                                simpleAdapter.notifyDataSetChanged();
+                                textView.setText("加载更多");
+                            }
+
+
+                        };
+
+                        asyncTask.execute();
+
+                    }
+                });
+                //   listView.add
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        HashMap<String,Object> hashMap = (HashMap<String, Object>) data.get(i);
+                        if(i>=10){
+                           i= i-10;
+                        }else if(i>=20){
+                            i=i-20;
+                        }
+                        MyMessage.endpoi = MyMessage.poiDetails.get(i);
+                        Intent intent = new Intent();
+                        intent.setClass(PoilistActivity.this,PoiDetailsActivity.class);
+                        intent.putExtra("name",hashMap.get("name").toString());
+                        intent.putExtra("detail",hashMap.get("detail").toString());
+                        startActivity(intent);
+
+                    }
+                });
+                super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
+            }
+        };
+        asyncTask.execute();
+
+
+
     }
 
     private void initmessagedata(){
@@ -381,6 +769,7 @@ public class PoilistActivity extends Activity {
         protected boolean onTap(int i) {
             Log.d("wwww","ontap"+i);
             com.baidu.mapapi.map.OverlayItem item = itemizedOverlay.getItem(i);
+            MyMessage.endpoi = MyMessage.poiDetails.get(i);
             GeoPoint point = item.getPoint();
             String title = item.getTitle();
             String content = item.getSnippet();

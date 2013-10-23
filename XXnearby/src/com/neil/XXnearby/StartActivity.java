@@ -31,9 +31,10 @@ public class StartActivity extends Activity {
     private List<String>messagedata = new ArrayList<String>();
     private ImageButton locatedbutton;
     private ImageButton optionsbutton;
+    private ImageButton titlesearchbutton;
     private TextView locatedmessage;
     private LocationClient locationClient;
-    private GeoPoint mylocation;
+
     private String addresstext;
     /**
      * Called when the activity is first created.
@@ -56,7 +57,24 @@ public class StartActivity extends Activity {
         initlistView();
         initimagebutton();
         initOptions();
+        initSearch();
         initmylocationmessage();
+    }
+
+    private void initSearch() {
+        titlesearchbutton= (ImageButton) findViewById(R.id.titlesearchbutton);
+        titlesearchbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent intent = new Intent();
+                intent.setClass(StartActivity.this, SearchActivity.class);
+                startActivity(intent);
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+        });
+
+
     }
 
     private void initmylocationmessage() {
@@ -68,11 +86,14 @@ public class StartActivity extends Activity {
         locationClient.registerLocationListener(new BDLocationListener() {
             @Override
             public void onReceiveLocation(BDLocation bdLocation) {
-                mylocation = new GeoPoint((int)bdLocation.getLatitude(),(int)bdLocation.getAltitude());
+                Log.e("asdasd",bdLocation.getLatitude()+">>>>"+bdLocation.getLongitude());
+                MyMessage.mylocation = new GeoPoint((int)(bdLocation.getLatitude()*1E6),(int)(bdLocation.getLongitude()*1E6));
+                MyMessage.myaddress  = bdLocation.getAddrStr();
+                MyMessage.mycity  = bdLocation.getCity();
                 addresstext =bdLocation.getAddrStr();
 
-
-                Toast.makeText(StartActivity.this,"定位完成!"+bdLocation.getAddrStr(),Toast.LENGTH_LONG).show();
+                locatedmessage.setText(addresstext);
+               // Toast.makeText(StartActivity.this,"定位完成!"+bdLocation.getAddrStr(),Toast.LENGTH_LONG).show();
                 locationClient.stop();
             }
 
@@ -135,6 +156,7 @@ public class StartActivity extends Activity {
                         Intent intent = new Intent();
                         intent.setClass(StartActivity.this, SecondActivity.class);
                         intent.putExtra("title",textView.getText());
+
                         startActivity(intent);
                     }
                 });
@@ -165,6 +187,7 @@ public class StartActivity extends Activity {
             public void onClick(View view) {
                 Intent intent = new Intent();
                 intent.setClass(StartActivity.this, OptionsActivity.class);
+
                 startActivity(intent);
                 //To change body of implemented methods use File | Settings | File Templates.
             }

@@ -9,7 +9,9 @@
                   android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
             android:background="@drawable/bg_title_bar">
-        <ImageButton android:layout_marginLeft="5dp"
+        <ImageButton
+                android:id="@+id/titlesearchbutton"
+                android:layout_marginLeft="5dp"
                 android:background="@drawable/titlesearchbutton"
                      android:src="@drawable/abs__ic_search"
                      android:layout_width="wrap_content"
