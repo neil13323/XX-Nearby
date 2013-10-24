@@ -17,7 +17,9 @@ import com.baidu.mapapi.map.*;
 import com.baidu.mapapi.search.*;
 import com.baidu.platform.comapi.basestruct.GeoPoint;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,7 +29,9 @@ import java.util.Date;
  * To change this template use File | Settings | File Templates.
  */
 public class PoiDetailsActivity extends Activity {
-
+    private static final int WALK = 1;
+    private static final int BUS = 2;
+    private static final int DRIVER = 3;
     private MapView mapView;
     private View popview;
     private TextView distancetext,nametext,detailtext,phonetext;
@@ -40,7 +44,8 @@ public class PoiDetailsActivity extends Activity {
     private RouteOverlay routeOverlay;
     private TransitOverlay transitOverlay;
     private MKRoute route;
-
+    private String dis;
+    private List<ArrayList<GeoPoint>> geoPoints;
     private BMapManager app;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +59,6 @@ public class PoiDetailsActivity extends Activity {
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.poimapdetails);
-        mkSearch.init(demoApplication.mBMapManager, null);
         layoutInflater = LayoutInflater.from(this);
         mapView = (MapView) findViewById(R.id.bmapView);
         mylocation = MyMessage.mylocation;
@@ -79,6 +83,7 @@ public class PoiDetailsActivity extends Activity {
                 MKPlanNode enNode = new MKPlanNode();
                 enNode.pt = MyMessage.endpoi.getLocation();
                 mkSearch.walkingSearch(MyMessage.mycity, stNode, MyMessage.mycity, enNode);
+
             }
         });
         radioButton2.setOnClickListener(new View.OnClickListener() {
@@ -88,7 +93,8 @@ public class PoiDetailsActivity extends Activity {
                 stNode.pt =MyMessage.mylocation;
                 MKPlanNode enNode = new MKPlanNode();
                 enNode.pt = MyMessage.endpoi.getLocation();
-                mkSearch.transitSearch(MyMessage.mycity,stNode,enNode);
+                mkSearch.transitSearch(MyMessage.mycity, stNode, enNode);
+
             }
         });
         radioButton3.setOnClickListener(new View.OnClickListener() {
@@ -99,6 +105,7 @@ public class PoiDetailsActivity extends Activity {
                 MKPlanNode enNode = new MKPlanNode();
                 enNode.pt = MyMessage.endpoi.getLocation();
                 mkSearch.drivingSearch(MyMessage.mycity,stNode,MyMessage.mycity,enNode);
+
             }
         });
 
@@ -148,6 +155,7 @@ public class PoiDetailsActivity extends Activity {
 
             public void onGetDrivingRouteResult(MKDrivingRouteResult res,
                                                 int error) {
+                route= null;
                 //起点或终点有歧义，需要选择具体的城市列表或地址列表
                 if (error == MKEvent.ERROR_ROUTE_ADDR){
                     //遍历所有地址
@@ -160,9 +168,13 @@ public class PoiDetailsActivity extends Activity {
                 // 错误号可参考MKEvent中的定义
                 if (error != 0 || res == null) {
                     Toast.makeText(PoiDetailsActivity.this, "抱歉，未找到结果", Toast.LENGTH_SHORT).show();
+                    distancetext.setTextSize(20);
+                    distancetext.setText("暂无距离信息");
+                    mapView.getOverlays().clear();
                     return;
                 }
 
+                geoPoints= res.getPlan(0).getRoute(0).getArrayPoints();
 
                 routeOverlay = new RouteOverlay(PoiDetailsActivity.this, mapView);
                 // 此处仅展示一个方案作为示例
@@ -181,11 +193,18 @@ public class PoiDetailsActivity extends Activity {
                 route = res.getPlan(0).getRoute(0);
 //                //重置路线节点索引，节点浏览时使用
 //                nodeIndex = -1;
-
+                if(route==null){
+                    distancetext.setTextSize(20);
+                    distancetext.setText("暂无距离信息");
+                }else{
+                    distancetext.setTextSize(25);
+                    distancetext.setText("距离大约为:"+route.getDistance()+"m,"+getTime(route.getDistance(),DRIVER));
+                }
             }
 
             public void onGetTransitRouteResult(MKTransitRouteResult res,
                                                 int error) {
+                route= null;
                 //起点或终点有歧义，需要选择具体的城市列表或地址列表
                 if (error == MKEvent.ERROR_ROUTE_ADDR){
                     //遍历所有地址
@@ -197,10 +216,13 @@ public class PoiDetailsActivity extends Activity {
                 }
                 if (error != 0 || res == null) {
                     Toast.makeText(PoiDetailsActivity.this, "抱歉，未找到结果", Toast.LENGTH_SHORT).show();
+                    distancetext.setTextSize(20);
+                    distancetext.setText("暂无距离信息");
+                    mapView.getOverlays().clear();
                     return;
                 }
 
-
+                geoPoints= res.getPlan(0).getRoute(0).getArrayPoints();
                 transitOverlay = new TransitOverlay (PoiDetailsActivity.this, mapView);
                 // 此处仅展示一个方案作为示例
                 transitOverlay.setData(res.getPlan(0));
@@ -210,16 +232,27 @@ public class PoiDetailsActivity extends Activity {
                 mapView.getOverlays().add(transitOverlay);
                 //执行刷新使生效
                 mapView.refresh();
+
                 // 使用zoomToSpan()绽放地图，使路线能完全显示在地图上
                 mapView.getController().zoomToSpan(transitOverlay.getLatSpanE6(), transitOverlay.getLonSpanE6());
                 //移动地图到起点
                 mapView.getController().animateTo(res.getStart().pt);
                 //重置路线节点索引，节点浏览时使用
                 route =  res.getPlan(0).getRoute(0);
+                MKLine mkLine = new MKLine();
+                mapView.getController().enableClick(true);
+                if(route==null){
+                    distancetext.setTextSize(20);
+                    distancetext.setText("暂无距离信息");
+                }else{
+                    distancetext.setTextSize(25);
+                    distancetext.setText("距离大约为:"+route.getDistance()+"m"+getTime(route.getDistance(),BUS));
+                }
             }
 
             public void onGetWalkingRouteResult(MKWalkingRouteResult res,
                                                 int error) {
+                route= null;
                 //起点或终点有歧义，需要选择具体的城市列表或地址列表
                 if (error == MKEvent.ERROR_ROUTE_ADDR){
                     //遍历所有地址
@@ -231,10 +264,13 @@ public class PoiDetailsActivity extends Activity {
                 }
                 if (error != 0 || res == null) {
                     Toast.makeText(PoiDetailsActivity.this, "抱歉，未找到结果", Toast.LENGTH_SHORT).show();
+                    distancetext.setTextSize(20);
+                    distancetext.setText("暂无距离信息");
+                    mapView.getOverlays().clear();
                     return;
                 }
 
-
+                geoPoints= res.getPlan(0).getRoute(0).getArrayPoints();
                 routeOverlay = new RouteOverlay(PoiDetailsActivity.this, mapView);
                 // 此处仅展示一个方案作为示例
                 routeOverlay.setData(res.getPlan(0).getRoute(0));
@@ -250,6 +286,13 @@ public class PoiDetailsActivity extends Activity {
                 mapView.getController().animateTo(res.getStart().pt);
                 //将路线数据保存给全局变量
                 route =  res.getPlan(0).getRoute(0);
+                if(route==null){
+                    distancetext.setTextSize(20);
+                    distancetext.setText("暂无距离信息");
+                }else{
+                    distancetext.setTextSize(25);
+                    distancetext.setText("距离大约为:"+route.getDistance()+"m"+getTime(route.getDistance(),WALK));
+                }
 
             }
             public void onGetAddrResult(MKAddrInfo res, int error) {
@@ -289,6 +332,13 @@ public class PoiDetailsActivity extends Activity {
         OverlayItem overlayItem2 = new OverlayItem(new GeoPoint((int) (34.25934463685013 * 1E6+4000), (int) (108.94721031188965 * 1E6+4000)),getIntent().getStringExtra("name"),getIntent().getStringExtra("detail"));
         overlayItem2.setMarker(getResources().getDrawable(R.drawable.ic_loc_to));
         itemizedOverlay.addItem(overlayItem2);
+        if(route==null){
+            distancetext.setTextSize(20);
+            distancetext.setText("暂无距离信息");
+        }else{
+            distancetext.setTextSize(25);
+            distancetext.setText("距离大约为:"+route.getDistance()+"m");
+        }
         if(MyMessage.endpoi.getPhone().equals("")){
             phonetext.setText("暂无电话");
         }else{
@@ -405,4 +455,46 @@ public class PoiDetailsActivity extends Activity {
 
 
     }
+    private String getTime(int len,int type){
+        int h=0;
+        int m=0;
+        int s=0;
+        if(type==WALK){
+            double time  = (float)len/1.8;
+            if(time>60){
+               m=(int)(time/60);
+            } else if (time>3600){
+               h=(int)(time/3600);
+            }
+            s=(int)(time-(int)60*m+(int)3600*h);
+        }
+        if(type==BUS){
+            double time  = (float)len/5.5;
+            if(time>60){
+                m=(int)(time/60);
+            } else if (time>3600){
+                h=(int)(time/3600);
+            }
+            s=(int)(time-(int)60*m+(int)3600*h);
+        }
+        if(type==DRIVER){
+            double time  = (float)len/8;
+            if(time>60){
+                m=(int)(time/60);
+            } else if (time>3600){
+                h=(int)(time/3600);
+            }
+            s=(int)(time-(int)60*m+(int)3600*h);
+        }
+        String str="路程大约需花费";
+        if(h!=0){
+           str+=h+"小时";
+        }else if(m!=0){
+            str+=m+"分钟";
+        }else if(s!=0){
+            str+=s+"秒";
+        }
+        return str;
+    }
+
 }

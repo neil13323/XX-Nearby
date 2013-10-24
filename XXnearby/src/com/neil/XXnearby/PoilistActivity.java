@@ -22,10 +22,7 @@ import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.OverlayItem;
 import com.baidu.platform.comapi.basestruct.GeoPoint;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PoilistActivity extends Activity {
 
@@ -93,7 +90,7 @@ public class PoilistActivity extends Activity {
 
     private void initmapdata(){
         mapView.getController().setCenter(MyMessage.mylocation);
-        mapView.getController().setZoom(18);
+
 
         itemizedOverlay = new MyItemizedOverlay<OverlayItem>(getResources().getDrawable(R.drawable.u71_normal),mapView);
         ItemizedOverlay<OverlayItem> mylocationOverlay = new ItemizedOverlay<OverlayItem>(getResources().getDrawable(R.drawable.u71_normal),mapView);
@@ -121,6 +118,7 @@ public class PoilistActivity extends Activity {
 
             }
         });
+        setCenter();
         mapView.refresh();
     }
 
@@ -199,7 +197,7 @@ public class PoilistActivity extends Activity {
                     @Override
                     protected void onPostExecute(Object o) {
                         progressDialog.dismiss();
-
+                        setCenter();
                         mapView.refresh();
 
                         super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
@@ -248,8 +246,10 @@ public class PoilistActivity extends Activity {
                         progressDialog.dismiss();
                         if(MyMessage.isempty){
                             Toast.makeText(PoilistActivity.this,"暂无更多数据",Toast.LENGTH_LONG).show();
-                        }
+                        }else{
+                        setCenter();
                         mapView.refresh();
+                        }
                         super.onPostExecute(o);    //To change body of overridden methods use File | Settings | File Templates.
                     }
                 };
@@ -747,6 +747,7 @@ public class PoilistActivity extends Activity {
                         MyMessage.endpoi.setDetail(detail);
                         MyMessage.endpoi.setDistance(distance);
                         MyMessage.endpoi.setLocation(geoPoint);
+
                         Intent intent = new Intent();
                         intent.setClass(PoilistActivity.this,PoiDetailsActivity.class);
                         intent.putExtra("name",hashMap.get("name").toString());
@@ -875,5 +876,18 @@ public class PoilistActivity extends Activity {
          */
         mapView.destroy();
         super.onDestroy();
+    }
+    private void setCenter(){
+        int lanmax=0;
+        int lanmin=0;
+        int lonmax=0;
+        int lonmin=0;
+        List<Integer>lanlist = new ArrayList<Integer>();
+        List<Integer>lonlist = new ArrayList<Integer>();
+        for(int x=0;x<MyMessage.poiDetails.size();x++){
+            lanlist.add(MyMessage.poiDetails.get(x).getLocation().getLatitudeE6());
+            lonlist.add(MyMessage.poiDetails.get(x).getLocation().getLongitudeE6());
+        }
+        mapView.getController().zoomToSpan(Collections.max(lanlist)-Collections.min(lanlist),Collections.max(lonlist)-Collections.min(lonlist));
     }
 }
