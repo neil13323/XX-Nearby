@@ -47,6 +47,7 @@ public class PoiDetailsActivity extends Activity {
     private String dis;
     private List<ArrayList<GeoPoint>> geoPoints;
     private BMapManager app;
+    private View phonelayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);    //To change body of overridden methods use File | Settings | File Templates.
@@ -73,6 +74,7 @@ public class PoiDetailsActivity extends Activity {
         detailtext = (TextView) findViewById(R.id.locationaddress);
         phonebutton = (ImageButton) findViewById(R.id.phonebutton);
         phonetext = (TextView) findViewById(R.id.phonenumber);
+        phonelayout = findViewById(R.id.phonelayout);
         init();
         radioButton1.setChecked(true);
         radioButton1.setOnClickListener(new View.OnClickListener() {
@@ -197,7 +199,7 @@ public class PoiDetailsActivity extends Activity {
                     distancetext.setTextSize(20);
                     distancetext.setText("暂无距离信息");
                 }else{
-                    distancetext.setTextSize(25);
+                    distancetext.setTextSize(20);
                     distancetext.setText("距离大约为:"+route.getDistance()+"m,"+getTime(route.getDistance(),DRIVER));
                 }
             }
@@ -247,7 +249,7 @@ public class PoiDetailsActivity extends Activity {
                 }else{
 
 
-                    distancetext.setTextSize(25);
+                    distancetext.setTextSize(20);
                     distancetext.setText("距离大约为:"+res.getPlan(0).getDistance()+"m"+getTime(res.getPlan(0).getDistance(),BUS));
                 }
             }
@@ -292,7 +294,7 @@ public class PoiDetailsActivity extends Activity {
                     distancetext.setTextSize(20);
                     distancetext.setText("暂无距离信息");
                 }else{
-                    distancetext.setTextSize(25);
+                    distancetext.setTextSize(20);
                     distancetext.setText("距离大约为:"+route.getDistance()+"m"+getTime(route.getDistance(),WALK));
                 }
 
@@ -346,7 +348,7 @@ public class PoiDetailsActivity extends Activity {
         }else{
             phonetext.setText(MyMessage.endpoi.getPhone());
 
-            phonebutton.setOnClickListener(new View.OnClickListener() {
+            phonelayout.setOnClickListener(new View.OnClickListener() {
                 private String phone_number;
                 private AlertDialog loginDialog;
                 @Override
@@ -363,6 +365,7 @@ public class PoiDetailsActivity extends Activity {
                                 LinearLayout.LayoutParams.FILL_PARENT);
                         view1.setLayoutParams(params);
                         for(int x=0;x<phonenumber.length;x++){
+                            Log.e("xc",phonenumber[x]);
                             TextView textView = new TextView(PoiDetailsActivity.this);
                             textView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                             textView.setText(phonenumber[x]);
@@ -385,9 +388,9 @@ public class PoiDetailsActivity extends Activity {
                             view1.addView(textView);
                             if(x==phonenumber.length-1){
                                 continue;
-                            }else{
-                                view1.addView(imageView);
                             }
+                            view1.addView(imageView);
+
                         }
 
                         builder.setView(view1);

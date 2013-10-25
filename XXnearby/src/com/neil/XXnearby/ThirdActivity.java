@@ -148,7 +148,7 @@ public class ThirdActivity extends Activity {
 
 
 
-        } else if("咖啡厅".equals(title)){
+        } else if("咖啡馆".equals(title)){
             messagedata.add("星巴克咖啡");
             messagedata.add("上岛咖啡");
             messagedata.add("Pacifi Ccoffee Company");

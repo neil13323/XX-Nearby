@@ -26,6 +26,7 @@ public class SearchActivity extends Activity {
     private boolean flag =false;
     private ListView listView;
     private TextView textView1;
+    private Spinner typespinner,aboutdistancespinner;
     /**
      * Called when the activity is first created.
      */
@@ -35,14 +36,42 @@ public class SearchActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.search);
         listView = (ListView) findViewById(R.id.firstitem);
+
+        listView.setCacheColorHint(0);
         init();
     }
 
     private void init() {
         inittitle();
-
-
+//        initsearchpanel();
+//
     }
+
+//    private void initsearchpanel() {
+//        typespinner = (Spinner) findViewById(R.id.type);
+//        List<String> messagedata = new ArrayList<String>();
+//        messagedata.add("餐饮服务");
+//        messagedata.add("购物服务");
+//        messagedata.add("生活服务");
+//        messagedata.add("体育休闲服务");
+//        messagedata.add("住宿服务");
+//        messagedata.add("医疗保健服务");
+//        messagedata.add("科教文化服务");
+//        messagedata.add("交通设施服务");
+//        messagedata.add("公共设施");
+//        List<String> messagedata1 = new ArrayList<String>();
+//        messagedata1.add("0~1000米");
+//        messagedata1.add("1000~2000米");
+//        messagedata1.add("2000~3000米");
+//        messagedata1.add("3000~4000米");
+//        messagedata1.add("4000~5000米");
+//        messagedata1.add("5000~10000米");
+//        ArrayAdapter arrayAdapter = new ArrayAdapter(this,android.R.layout.simple_list_item_single_choice,messagedata.toArray());
+//        typespinner.setAdapter(arrayAdapter);
+//        aboutdistancespinner = (Spinner) findViewById(R.id.aboutdistance);
+//        ArrayAdapter arrayAdapter1 = new ArrayAdapter(this,android.R.layout.simple_list_item_single_choice,messagedata1.toArray());
+//        aboutdistancespinner.setAdapter(arrayAdapter1);
+//    }
 
     private void inittitle() {
         editText = (EditText) findViewById(R.id.searchMessage);
@@ -81,7 +110,7 @@ public class SearchActivity extends Activity {
             protected Object doInBackground(Object... objects) {
 
 
-                data = JsonUtils.getData(editText.getText().toString(),1,"100000",MyMessage.mylocation);
+                data = JsonUtils.getData(editText.getText().toString().trim(),1,"100000",MyMessage.mylocation);
 
                 return null;  //To change body of implemented methods use File | Settings | File Templates.
             }

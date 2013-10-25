@@ -681,7 +681,7 @@ public class PoilistActivity extends Activity {
                 textView1.setPadding(0, 3, 0, 3);
                 textView1.setText("加载更多");
 
-
+                listView.setCacheColorHint(0);
                 listView.addFooterView(textView1);
 
                 listView.setAdapter(simpleAdapter);
@@ -890,6 +890,9 @@ public class PoilistActivity extends Activity {
         for(int x=0;x<MyMessage.poiDetails.size();x++){
             lanlist.add(MyMessage.poiDetails.get(x).getLocation().getLatitudeE6());
             lonlist.add(MyMessage.poiDetails.get(x).getLocation().getLongitudeE6());
+        }
+        if(lanlist.size()==0){
+            return;
         }
         mapView.getController().zoomToSpan(Collections.max(lanlist)-Collections.min(lanlist),Collections.max(lonlist)-Collections.min(lonlist));
     }
