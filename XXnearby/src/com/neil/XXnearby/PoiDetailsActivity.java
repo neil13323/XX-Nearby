@@ -245,8 +245,10 @@ public class PoiDetailsActivity extends Activity {
                     distancetext.setTextSize(20);
                     distancetext.setText("暂无距离信息");
                 }else{
+
+
                     distancetext.setTextSize(25);
-                    distancetext.setText("距离大约为:"+route.getDistance()+"m"+getTime(route.getDistance(),BUS));
+                    distancetext.setText("距离大约为:"+res.getPlan(0).getDistance()+"m"+getTime(res.getPlan(0).getDistance(),BUS));
                 }
             }
 

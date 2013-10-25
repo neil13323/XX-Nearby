@@ -97,6 +97,9 @@ public class PoilistActivity extends Activity {
         OverlayItem overlayItem = new OverlayItem(MyMessage.mylocation,"这是我的位置","这是我位置的描述");
         mylocationOverlay.addItem(overlayItem);
         JsonUtils.getData(title,mapcurrentcount,range,MyMessage.mylocation);
+        if(MyMessage.isempty){
+            return;
+        }
         for(int x=0;x<MyMessage.poiDetails.size();x++){
             PoiDetail poiDetail = MyMessage.poiDetails.get(x);
             OverlayItem overlayItem1 = new OverlayItem(poiDetail.getLocation(),poiDetail.getName(),poiDetail.getDetail());
