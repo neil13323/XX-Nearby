@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+                android:background="@android:color/white"
+        >
+    <LinearLayout android:orientation="horizontal"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+            android:background="@drawable/bg_title_bar">
+        <ImageButton android:id="@id/titlebackbutton" android:layout_marginLeft="5dp"
+                android:background="@drawable/titlesearchbutton"
+                     android:src="@drawable/ic_nav_back"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+
+                     android:layout_gravity="left"/>
+        <EditText android:id="@+id/searchMessage"
+                android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="1"
+                  android:hint="请输入商户名"
+                android:textSize="20dp"
+                android:textColor="@android:color/black"
+                android:layout_gravity="center"
+               android:layout_marginLeft="5dp"
+               android:layout_marginRight="5dp"/>
+        <ImageButton android:id="@+id/titlesearchbutton"
+                     android:background="@drawable/titlesearchbutton"
+                     android:src="@drawable/abs__ic_search"
+                     android:layout_gravity="right"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+
+                     android:layout_marginRight="5dp"/>
+
+    </LinearLayout>
+    <ListView android:layout_width="match_parent" android:layout_height="match_parent" android:id="@+id/firstitem" android:layout_weight="1"/>
+</LinearLayout>
+
