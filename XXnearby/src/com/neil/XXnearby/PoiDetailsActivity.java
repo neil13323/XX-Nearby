@@ -3,6 +3,7 @@ package com.neil.XXnearby;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -110,7 +111,33 @@ public class PoiDetailsActivity extends Activity {
 
             }
         });
+        mapView.regMapViewListener(DemoApplication.getInstance().mBMapManager, new MKMapViewListener(){
 
+            @Override
+            public void onMapMoveFinish() {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public void onClickMapPoi(MapPoi mapPoi) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public void onGetCurrentMap(Bitmap bitmap) {
+
+            }
+
+            @Override
+            public void onMapAnimationFinish() {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public void onMapLoadFinish() {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+        });
     }
 
     private void init() {

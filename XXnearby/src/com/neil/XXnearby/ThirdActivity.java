@@ -371,7 +371,7 @@ public class ThirdActivity extends Activity {
 
 
 
-        }    else if("医药保健相关".equals(title)){
+        }    else if("医疗保健相关".equals(title)){
             messagedata.add("药房");
             messagedata.add("医疗保健用品");
 
